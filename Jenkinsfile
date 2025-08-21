@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clonning Git Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/herbertsouzapereira/-jk-public-gh.git'
+            }
+        }
+
+        stage('Building Image') {
+            steps {
+                sh 'docker build -t webapp:${BUILD_NUMBER} .'
+            }
+        }
+
+       stage('Stop Previous Container') {
+            steps {
+                // para o container antigo, se existir
+                sh 'docker rm -f webapp_ctr || true'
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                sh 'docker run -d -p 3000:3000 --name webapp_ctr webapp:${BUILD_NUMBER}'
+            }
+        }
+    }
+}
